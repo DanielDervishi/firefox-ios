@@ -268,6 +268,9 @@ class MainMenuActionHelper: PhotonActionSheetProtocol,
 
             let sendToDeviceAction = getSendToDevice()
             append(to: &section, action: sendToDeviceAction)
+            
+            let printTestAction = getPrintTestAction()
+            append(to: &section, action: printTestAction)
 
             let shareAction = getShareAction()
             append(to: &section, action: shareAction)
@@ -604,6 +607,17 @@ class MainMenuActionHelper: PhotonActionSheetProtocol,
                     }
                 }
             }
+        }.items
+    }
+    
+    private func getPrintTestAction() -> PhotonRowActions {
+        return SingleActionViewModel(title: "Print",
+                                     iconString: StandardImageIdentifiers.Large.printer) { _ in
+            guard let selectedTab = self.tabManager.selectedTab, let webView = selectedTab.webView else {return}
+            let printController = UIPrintInteractionController.shared
+            printController.printFormatter = webView.viewPrintFormatter()
+            printController.present(animated: true, completionHandler: nil)
+            
         }.items
     }
 
