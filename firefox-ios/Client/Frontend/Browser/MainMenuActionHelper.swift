@@ -26,6 +26,7 @@ protocol ToolBarActionMenuDelegate: AnyObject {
     func showZoomPage(tab: Tab)
     func showCreditCardSettings()
     func showSignInView(fxaParameters: FxASignInViewParameters)
+    func showFilePicker(fileURL: URL)
 }
 
 extension ToolBarActionMenuDelegate {
@@ -63,6 +64,8 @@ class MainMenuActionHelper: PhotonActionSheetProtocol,
     private let selectedTab: Tab?
     private let tabUrl: URL?
     private let isFileURL: Bool
+    var documentPickerDelegate: DocumentPickerDelegate?
+    var documentPicker: UIDocumentPickerViewController?
 
     let themeManager: ThemeManager
     var bookmarksHandler: BookmarksHandler
@@ -268,9 +271,11 @@ class MainMenuActionHelper: PhotonActionSheetProtocol,
 
             let sendToDeviceAction = getSendToDevice()
             append(to: &section, action: sendToDeviceAction)
-            
-            let printTestAction = getPrintTestAction()
-            append(to: &section, action: printTestAction)
+
+            if let tab = self.selectedTab, let url = tab.canonicalURL?.displayURL, url.lastPathComponent.suffix(4) == ".pdf" {
+                let printTestAction = getPrintTestAction()
+                append(to: &section, action: printTestAction)
+            }
 
             let shareAction = getShareAction()
             append(to: &section, action: shareAction)
@@ -611,13 +616,51 @@ class MainMenuActionHelper: PhotonActionSheetProtocol,
     }
     
     private func getPrintTestAction() -> PhotonRowActions {
-        return SingleActionViewModel(title: "Print",
-                                     iconString: StandardImageIdentifiers.Large.printer) { _ in
-            guard let selectedTab = self.tabManager.selectedTab, let webView = selectedTab.webView else {return}
-            let printController = UIPrintInteractionController.shared
-            printController.printFormatter = webView.viewPrintFormatter()
-            printController.present(animated: true, completionHandler: nil)
+        return SingleActionViewModel(title: "Dowload PDF",
+                                     iconString: StandardImageIdentifiers.Large.folder) { _ in
             
+            // Implementation 1 - Print Screen Stuff
+//            guard let selectedTab = self.tabManager.selectedTab, let webView = selectedTab.webView else {return}
+//            let printController = UIPrintInteractionController.shared
+//            printController.printFormatter = webView.viewPrintFormatter()
+//            printController.present(animated: true, completionHandler: nil)
+            
+            // Implementation 2 - Download but with no file system for users to choose the location of where they want the file saved
+//            if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+//         {
+//                guard let tab = self.selectedTab, let url = tab.canonicalURL?.displayURL else { return }
+//                guard let temporaryDocument = tab.temporaryDocument else {print("no temporary document"); return}
+//                temporaryDocument.getURL { tempDocURL in
+//                    DispatchQueue.main.async {
+//                        let fileURL = documentsDirectory.appendingPathComponent(url.lastPathComponent)
+//                        do {
+////                            var counter = 1
+////                            while FileManager.default.fileExists(atPath: fileURL.path) {
+////                                let uniqueFileName = "\(url.lastPathComponent) (\(counter)).\(fileExtension)"
+////                                    fileURL = directory.appendingPathComponent(uniqueFileName)
+////                                    counter += 1
+////                            }
+//                            try FileManager.default.copyItem(at: tempDocURL!, to: fileURL)
+//                            print("File saved to: \(fileURL.path)")
+//                        } catch {
+//                            print("Error saving file: \(error)")
+//                        }
+//                    }
+//                }
+//                    
+//                }
+            // Implementation 3 - Download the file by bringing up the file save prompt
+            guard let tab = self.selectedTab, let url = tab.canonicalURL?.displayURL else { return }
+            guard let temporaryDocument = tab.temporaryDocument else {print("no temporary document"); return}
+            temporaryDocument.getURL { fileURL in
+                        DispatchQueue.main.async {
+                            guard let fileURL = fileURL else {
+                                print("Failed to get file URL")
+                                return
+                            }
+                            self.delegate?.showFilePicker(fileURL: fileURL)
+                        }
+                    }
         }.items
     }
 

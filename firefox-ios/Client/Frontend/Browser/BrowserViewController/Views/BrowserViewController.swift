@@ -96,6 +96,9 @@ class BrowserViewController: UIViewController,
     var windowUUID: WindowUUID { return tabManager.windowUUID }
     var currentWindowUUID: UUID? { return windowUUID }
     private var observedWebViews = WeakList<WKWebView>()
+    
+    var documentPicker: UIDocumentPickerViewController?
+    var documentPickerDelegate: DocumentPickerDelegate?
 
     // MARK: Telemetry Variables
     var webviewTelemetry = WebViewLoadMeasurementTelemetry()

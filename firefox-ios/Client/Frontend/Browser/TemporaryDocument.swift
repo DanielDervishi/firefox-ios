@@ -50,6 +50,7 @@ class TemporaryDocument: NSObject {
                   error == nil else {
                 // If we encounter an error downloading the temp file, just return with the
                 // original remote URL so it can still be shared as a web URL.
+                print("non local file")
                 completionHandler(request.url)
                 return
             }
@@ -65,10 +66,12 @@ class TemporaryDocument: NSObject {
             try? FileManager.default.removeItem(at: url)
 
             do {
+                print("local file")
                 try FileManager.default.moveItem(at: location, to: url)
                 self?.localFileURL = url
                 completionHandler(url)
             } catch {
+                print("non local file")
                 // If we encounter an error downloading the temp file, just return with the
                 // original remote URL so it can still be shared as a web URL.
                 completionHandler(request.url)

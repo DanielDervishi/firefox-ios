@@ -284,6 +284,7 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
 
 // MARK: - ToolbarActionMenuDelegate
 extension BrowserViewController: ToolBarActionMenuDelegate {
+    
     func updateToolbarState() {
         updateToolbarStateForTraitCollection(view.traitCollection)
     }
@@ -360,5 +361,34 @@ extension BrowserViewController: ToolBarActionMenuDelegate {
         presentSignInViewController(fxaParameters.launchParameters,
                                     flowType: fxaParameters.flowType,
                                     referringPage: fxaParameters.referringPage)
+    }
+    
+    func showFilePicker(fileURL: URL) {
+        let documentPicker = UIDocumentPickerViewController(forExporting: [fileURL], asCopy: true)
+        let delegate = DocumentPickerDelegate(theme: themeManager.currentTheme(for: self.windowUUID), browserVCDelegate: self)
+        documentPicker.delegate = delegate
+        documentPicker.modalPresentationStyle = .formSheet
+        print("Presenting document picker with delegate: \(String(describing: documentPicker.delegate))")
+        showViewController(viewController: documentPicker)
+    }
+}
+
+class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate {
+    private let theme: Theme
+    private let browserVCDelegate: ToolBarActionMenuDelegate?
+
+    init(theme: Theme, browserVCDelegate: ToolBarActionMenuDelegate) {
+        self.theme = theme
+        self.browserVCDelegate = browserVCDelegate
+        print("initialized delegate")
+    }
+
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        print("Document picked at URLs: \(urls)")
+//        self.delegate?.showToast(message: "Success", toastAction: .share)
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        print("User cancelled the document picker")
     }
 }
