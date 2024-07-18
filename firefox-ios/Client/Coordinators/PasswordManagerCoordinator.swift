@@ -35,11 +35,11 @@ class PasswordManagerCoordinator: BaseCoordinator,
     }
 
     func start(with shouldShowOnboarding: Bool) {
-        if shouldShowOnboarding {
+//        if shouldShowOnboarding {
             showPasswordOnboarding()
-        } else {
-            showPasswordManager()
-        }
+//        } else {
+//            showPasswordManager()
+//        }
     }
 
     func showPasswordManager() {
