@@ -68,7 +68,7 @@ class OnboardingInstructionPopupViewController: UIViewController, Themeable {
     var notificationCenter: NotificationProtocol
     var themeManager: ThemeManager
     var themeObserver: NSObjectProtocol?
-    private var contentViewHeightConstraint: NSLayoutConstraint!
+//    private var contentViewHeightConstraint: NSLayoutConstraint!
     var didTapButton = false
     var buttonTappedFinishFlow: (() -> Void)?
     var dismissDelegate: BottomSheetDismissProtocol?
@@ -117,8 +117,8 @@ class OnboardingInstructionPopupViewController: UIViewController, Themeable {
     func setupView() {
         addViewsToView()
 
-        contentViewHeightConstraint = contentContainerView.heightAnchor.constraint(equalToConstant: 300)
-        contentViewHeightConstraint.priority = UILayoutPriority(999)
+//        contentViewHeightConstraint = contentContainerView.heightAnchor.constraint(equalToConstant: 300)
+//        contentViewHeightConstraint.priority = UILayoutPriority(999)
 
         var topPadding = UX.topPaddingPhone
         var leadingPadding = UX.leadingPaddingPhone
