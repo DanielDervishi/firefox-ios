@@ -12,6 +12,7 @@ import TabDataStore
 
 import enum MozillaAppServices.VisitType
 import struct MozillaAppServices.CreditCard
+import ComponentLibrary
 
 class BrowserCoordinator: BaseCoordinator,
                           LaunchCoordinatorDelegate,
@@ -25,7 +26,9 @@ class BrowserCoordinator: BaseCoordinator,
                           TabManagerDelegate,
                           TabTrayCoordinatorDelegate,
                           PrivateHomepageDelegate,
-                          WindowEventCoordinator {
+                          WindowEventCoordinator,
+                          PasswordGeneratorCoordinator {
+    
     var browserViewController: BrowserViewController
     var webviewController: WebviewViewController?
     var homepageViewController: HomepageViewController?
@@ -725,6 +728,37 @@ class BrowserCoordinator: BaseCoordinator,
                          completion: (() -> Void)? = nil) {
         browserViewController.willNavigateAway()
         router.present(viewController)
+    }
+
+// MARK: - Password Generator
+    func showPasswordGenerator() {
+        guard let tab = tabManager.selectedTab else {return}
+        let passwordGenVC = PasswordGeneratorViewController(windowUUID: windowUUID, currentTab: tab)
+        passwordGenVC.passwordGeneratorCoordinator = self
+
+        let action = PasswordGeneratorAction(
+            windowUUID: windowUUID,
+            actionType: PasswordGeneratorActionType.showPasswordGenerator,
+            currentTab: tab
+        )
+        store.dispatch(action)
+
+        var bottomSheetVM = BottomSheetViewModel(
+            closeButtonA11yLabel: .PasswordGenerator.CloseButtonA11yLabel,
+            closeButtonA11yIdentifier: AccessibilityIdentifiers.PasswordGenerator.bottomSheet
+        )
+        bottomSheetVM.shouldDismissForTapOutside = true
+        let bottomSheetVC = BottomSheetViewController(
+            viewModel: bottomSheetVM,
+            childViewController: passwordGenVC,
+            usingDimmedBackground: true,
+            windowUUID: windowUUID
+        )
+        present(bottomSheetVC)
+    }
+
+    func dismissPasswordGenerator() {
+        router.dismiss(animated: true)
     }
 
     // MARK: - Main Menu

@@ -614,6 +614,7 @@ class BrowserViewController: UIViewController,
         ensureMainThread { [weak self] in
             guard let self else { return }
 
+            let oldState = browserViewControllerState
             browserViewControllerState = state
 
             // opens or close sidebar/bottom sheet to match the saved state
@@ -644,6 +645,10 @@ class BrowserViewController: UIViewController,
             executeToolbarActions()
 
             handleMicrosurvey(state: state)
+
+            if state.showPasswordGenerator {
+                navigationHandler?.showPasswordGenerator()
+            }
         }
     }
 
@@ -3221,13 +3226,6 @@ extension BrowserViewController: LegacyTabDelegate {
                         }
                     }
                 }
-            }
-            logins.foundPasswordField = { (password: String) -> Void in
-                self.showPasswordGeneratorBottomSheet(
-                    generatedPassword: password,
-                    fillPasswordField: {_ in
-                        LoginsHelper.fillPasswordFields(password: password, with: tab)
-                    })
             }
         }
 

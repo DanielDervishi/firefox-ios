@@ -28,6 +28,7 @@ struct AppState: StateType {
                 case (.microsurvey(let state), .microsurvey): return state as? S
                 case (.toolbar(let state), .toolbar): return state as? S
                 case (.trackingProtection(let state), .trackingProtection): return state as? S
+                case (.passwordGenerator(let state), .passwordGenerator): return state as? S
                 default: return nil
                 }
             }.first(where: {
@@ -60,5 +61,6 @@ let store = Store(state: AppState(),
                     ToolbarMiddleware().toolbarProvider,
                     MicrosurveyPromptMiddleware().microsurveyProvider,
                     MicrosurveyMiddleware().microsurveyProvider,
-                    TrackingProtectionMiddleware().trackingProtectionProvider
+                    TrackingProtectionMiddleware().trackingProtectionProvider,
+                    PasswordGeneratorMiddleware().passwordGeneratorProvider
                   ])

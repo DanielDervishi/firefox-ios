@@ -41,9 +41,6 @@ class LoginsHelper: TabContentScript {
     private var logger: Logger = DefaultLogger.shared
 
     public var foundFieldValues: ((FocusFieldType, String) -> Void)?
-    public var foundPasswordField: ((String) -> Void)?
-
-    public  var generatedPassword: String?
 
     // Exposed for mocking purposes
     var logins: RustLogins {
@@ -128,13 +125,9 @@ class LoginsHelper: TabContentScript {
         else { return }
 
         if type == "generatePassword" {
-            if let foundPassField = self.foundPasswordField {
-                if let password = self.generatedPassword {
-                    self.foundPasswordField?(password)
-                } else {
-                    generateStrongPassword(completion: foundPassField)
-                }
-            }
+            guard let tab = self.tab else {return}
+            let newAction = GeneralBrowserAction(windowUUID: tab.windowUUID, actionType: GeneralBrowserActionType.showPasswordGenerator)
+            store.dispatch(newAction)
         }
 
         // NOTE: FXIOS-3856 will further enhance the logs into actual callback
@@ -271,6 +264,8 @@ class LoginsHelper: TabContentScript {
         ) { bar in
             self.tab?.removeSnackbar(bar)
             self.snackBar = nil
+            guard let windowUUID = self.tab?.windowUUID else {return}
+            store.dispatch(PasswordGeneratorAction(windowUUID: windowUUID, actionType: PasswordGeneratorActionType.clearGeneratedPasswordForSite, currentTab: self.tab))
             return
         }
         let save = SnackButton(
@@ -282,6 +277,8 @@ class LoginsHelper: TabContentScript {
             self.snackBar = nil
             self.sendLoginsSavedTelemetry()
             self.profile.logins.addLogin(login: login, completionHandler: { _ in })
+            guard let windowUUID = self.tab?.windowUUID else {return}
+            store.dispatch(PasswordGeneratorAction(windowUUID: windowUUID, actionType: PasswordGeneratorActionType.clearGeneratedPasswordForSite, currentTab: self.tab))
         }
 
         applyTheme(for: dontSave, save)
@@ -358,29 +355,6 @@ class LoginsHelper: TabContentScript {
     public static func yieldFocusBackToField(with tab: Tab) {
         let jsFocusCallback = "window.__firefox__.logins.yieldFocusBackToField()"
         tab.webView?.evaluateJavascriptInDefaultContentWorld(jsFocusCallback)
-    }
-
-    public static func fillPasswordFields(password: String, with tab: Tab) {
-        let jsFunctionCall = "window.__firefox__.logins.fillGeneratedPassword(\"\(password)\")"
-
-        tab.webView?.evaluateJavascriptInDefaultContentWorld(jsFunctionCall) { (result, error) in
-            if let error = error {
-                print("Error filling in password info")
-            }
-        }
-    }
-
-    public func generateStrongPassword(completion: @escaping (String) -> Void) {
-        let jsFunctionCall = "window.__firefox__.logins.generatePassword()"
-        self.tab?.webView?.evaluateJavascriptInDefaultContentWorld(jsFunctionCall) { (result, error) in
-            if let error = error {
-                print("JavaScript evaluation error: \(error.localizedDescription)")
-            } else if let result = result as? String {
-                print("JavaScript object: \(result)")
-
-                completion(result)
-            }
-        }
     }
 
     // MARK: Theming System

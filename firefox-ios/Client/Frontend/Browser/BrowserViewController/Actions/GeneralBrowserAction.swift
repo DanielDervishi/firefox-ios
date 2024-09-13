@@ -53,6 +53,7 @@ enum GeneralBrowserActionType: ActionType {
     case showNewTabLongPressActions
     case addToReadingListLongPressAction
     case clearData
+    case showPasswordGenerator
 }
 
 class GeneralBrowserMiddlewareAction: Action {

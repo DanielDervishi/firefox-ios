@@ -6,8 +6,11 @@ import Common
 import ComponentLibrary
 import Shared
 import UIKit
+import Redux
 
-class PasswordGeneratorViewController: UIViewController, Themeable {
+class PasswordGeneratorViewController: UIViewController, StoreSubscriber, Themeable {
+    typealias SubscriberState = PasswordGeneratorState
+    private var passwordGeneratorState: PasswordGeneratorState
     private enum UX {
         static let containerPadding: CGFloat = 20
         static let containerElementsVerticalPadding: CGFloat = 16
@@ -59,17 +62,18 @@ class PasswordGeneratorViewController: UIViewController, Themeable {
             UIImage(named: StandardImageIdentifiers.Large.arrowClockwise)?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.accessibilityLabel = .PasswordGenerator.refreshStrongPasswordButtonA11yLabel
         button.accessibilityIdentifier = AccessibilityIdentifiers.PasswordGenerator.bottomSheetRefreshStrongPasswordButton
+        button.addTarget(self, action: #selector(self.refreshPasswordButtonOnClick), for: .touchUpInside)
     }
 
     private lazy var usePasswordButton: PrimaryRoundedButton = .build()
 
+    var passwordGeneratorCoordinator: PasswordGeneratorCoordinator?
     var themeManager: ThemeManager
     var themeObserver: NSObjectProtocol?
     var notificationCenter: NotificationProtocol
     let windowUUID: WindowUUID
     var currentWindowUUID: UUID? { windowUUID }
-    private var generatedPassword: String
-    private var fillPasswordField: ((String) -> Void)?
+    private var currentTab: Tab
     private var contentViewHeightConstraint: NSLayoutConstraint!
 
     // MARK: - Initializers
@@ -77,15 +81,18 @@ class PasswordGeneratorViewController: UIViewController, Themeable {
     init(windowUUID: WindowUUID,
          themeManager: ThemeManager = AppContainer.shared.resolve(),
          notificationCenter: NotificationProtocol = NotificationCenter.default,
-         generatedPassword: String,
-         fillPasswordField: @escaping (String) -> Void ) {
+         currentTab: Tab) {
         self.windowUUID = windowUUID
         self.themeManager = themeManager
         self.notificationCenter = notificationCenter
-        self.generatedPassword = generatedPassword
-        self.fillPasswordField = fillPasswordField
-
+        self.currentTab = currentTab
+        self.passwordGeneratorState = PasswordGeneratorState(windowUUID: windowUUID)
         super.init(nibName: nil, bundle: nil)
+        self.subscribeToRedux()
+    }
+
+    deinit {
+        unsubscribeFromRedux()
     }
 
     required init?(coder: NSCoder) {
@@ -224,21 +231,29 @@ class PasswordGeneratorViewController: UIViewController, Themeable {
 
     @objc
     func copyText(_ sender: Any?) {
-        UIPasteboard.general.string = generatedPassword
+        UIPasteboard.general.string = passwordGeneratorState.password
     }
 
     @objc
     func useButtonOnClick() {
-        fillPasswordField?(generatedPassword)
-        dismiss(animated: true)
+        store.dispatch(PasswordGeneratorAction(windowUUID: windowUUID, actionType: PasswordGeneratorActionType.userTappedUsePassword, currentTab: currentTab))
+        passwordGeneratorCoordinator?.dismissPasswordGenerator()
+    }
+
+    @objc
+    func refreshPasswordButtonOnClick() {
+        store.dispatch(PasswordGeneratorAction(windowUUID: windowUUID, actionType: PasswordGeneratorActionType.userTappedRefreshPassword, currentTab: currentTab))
     }
 
     private func buildPasswordLabel() {
         passwordLabel.numberOfLines = 0
         passwordLabel.font = FXFontStyles.Regular.body.scaledFont()
         let text = NSMutableAttributedString(string: .PasswordGenerator.passwordReadoutPrefaceA11y)
-        passwordLabel.text = generatedPassword
-        text.append(NSMutableAttributedString(string: passwordLabel.text!, attributes: [.accessibilitySpeechSpellOut: true]))
+        passwordLabel.text = passwordGeneratorState.password
+        text.append(NSMutableAttributedString(
+            string: passwordGeneratorState.password,
+            attributes: [.accessibilitySpeechSpellOut: true])
+        )
         passwordLabel.accessibilityAttributedLabel = text
     }
 
@@ -248,6 +263,39 @@ class PasswordGeneratorViewController: UIViewController, Themeable {
             a11yIdentifier: AccessibilityIdentifiers.PasswordGenerator.bottomSheetUsePasswordButton)
         usePasswordButton.configure(viewModel: usePasswordButtonVM)
         usePasswordButton.addTarget(self, action: #selector(useButtonOnClick), for: .touchUpInside)
+    }
+
+    // MARK: - Redux
+    func subscribeToRedux() {
+        store.dispatch(
+            ScreenAction(
+                windowUUID: windowUUID,
+                actionType: ScreenActionType.showScreen,
+                screen: .passwordGenerator
+            )
+        )
+
+        let uuid = windowUUID
+        store.subscribe(self, transform: {
+            return $0.select({ appState in
+                return PasswordGeneratorState(appState: appState, uuid: uuid)
+            })
+        })
+    }
+
+    func unsubscribeFromRedux() {
+        store.dispatch(
+            ScreenAction(
+                windowUUID: windowUUID,
+                actionType: ScreenActionType.closeScreen,
+                screen: .passwordGenerator
+            )
+        )
+    }
+
+    func newState(state: PasswordGeneratorState) {
+        passwordGeneratorState = state
+        passwordLabel.text = passwordGeneratorState.password
     }
 }
 

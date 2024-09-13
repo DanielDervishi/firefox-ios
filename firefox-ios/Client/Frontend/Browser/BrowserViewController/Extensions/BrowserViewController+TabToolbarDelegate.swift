@@ -364,20 +364,6 @@ extension BrowserViewController: ToolBarActionMenuDelegate, UIDocumentPickerDele
                                     flowType: fxaParameters.flowType,
                                     referringPage: fxaParameters.referringPage)
     }
-    func showPasswordGeneratorBottomSheet(generatedPassword: String, fillPasswordField: @escaping (String) -> Void) {
-        let passwordGeneratorVC = PasswordGeneratorViewController(windowUUID: windowUUID, generatedPassword: generatedPassword, fillPasswordField: fillPasswordField)
-
-        var bottomSheetVM = BottomSheetViewModel(
-            closeButtonA11yLabel: .PasswordGenerator.CloseButtonA11yLabel,
-            closeButtonA11yIdentifier: AccessibilityIdentifiers.PasswordGenerator.bottomSheet)
-        bottomSheetVM.shouldDismissForTapOutside = true
-        let bottomSheetVC = BottomSheetViewController(
-            viewModel: bottomSheetVM,
-            childViewController: passwordGeneratorVC,
-            usingDimmedBackground: true,
-            windowUUID: windowUUID)
-        showViewController(viewController: bottomSheetVC)
-    }
 
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         if !urls.isEmpty {

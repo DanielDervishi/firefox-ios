@@ -6892,42 +6892,42 @@ extension String {
 extension String {
     public struct PasswordGenerator {
         public static let UseStrongPassword = MZLocalizedString(
-            key: "PasswordGenerator.UseStrongPassword.v133",
+            key: "PasswordGenerator.UseStrongPassword.v132",
             tableName: "PasswordGenerator",
             value: "Use a strong password?",
             comment: "Header Text displayed when a user interacts with the password field in a signup form, as part of a popup. A random password has been generated for the user and clicking a button fills in the password of the signup form with this password.")
         public static let PasswordGeneratorInformation = MZLocalizedString(
-            key: "PasswordGenerator.PasswordGeneratorInformation.v133",
+            key: "PasswordGenerator.PasswordGeneratorInformation.v132",
             tableName: "PasswordGenerator",
-            value: "Firefox can generate random, secure passwords for you when you're creating an account. It’ll be saved into your account for future use.",
+            value: "Protect your account by using a strong, randomly generated password.",
             comment: "Text displayed when a user interacts with the password field in a signup form, as part of a popup. This popup allows the user to generate a password that they have the option to save for use in the future.")
         public static let UsePassword = MZLocalizedString(
-            key: "PasswordGenerator.UsePassword.v133",
+            key: "PasswordGenerator.UsePassword.v132",
             tableName: "PasswordGenerator",
             value: "Use Password",
             comment: "Button displayed when a user interacts with the password field in a signup form, as part of a popup. A random password has been generated for the user and clicking this button fills in the password of the signup form with this password.")
         public static let PasswordGenerator = MZLocalizedString(
-            key: "PasswordGenerator.PasswordGenerator.v133",
+            key: "PasswordGenerator.PasswordGenerator.v132",
             tableName: "PasswordGenerator",
             value: "Password Generator",
             comment: "Accessibility label describing a feature that generates a password when a signup form is interacted with.")
         public static let CloseButtonA11yLabel = MZLocalizedString(
-            key: "PasswordGenerator.CloseButtonA11ylabel.v133",
+            key: "PasswordGenerator.CloseButtonA11ylabel.v132",
             tableName: "PasswordGenerator",
             value: "Close",
             comment: "Accessibility label describing the close button for the popup related to a feature that generates a password when a signup form is interacted with.")
         public static let refreshStrongPasswordButtonA11yLabel = MZLocalizedString(
-            key: "PasswordGenerator.refreshStrongPasswordButtonA11yLabel.v133",
+            key: "PasswordGenerator.refreshStrongPasswordButtonA11yLabel.v132",
             tableName: "PasswordGenerator",
             value: "Generate new strong password",
             comment: "Accessibility label describing the refresh password button for the popup related to a feature that generates a password when a signup form is interacted with.")
         public static let passwordReadoutPrefaceA11y = MZLocalizedString(
-            key: "PasswordGenerator.passwordReadoutPrefaceA11y.v133",
+            key: "PasswordGenerator.passwordReadoutPrefaceA11y.v132",
             tableName: "PasswordGenerator",
             value: "Generated password: ",
             comment: "Preface such that an accesibility user is alerted to the fact that the strong password is going to be announced following this string")
         public static let copyStrongPassword = MZLocalizedString(
-            key: "PasswordGenerator.copyStrongPassword.v133",
+            key: "PasswordGenerator.copyStrongPassword.v132",
             tableName: "PasswordGenerator",
             value: "Copy",
             comment: "When a user creates an account the have the option to generate a strong password to use for this new account. The user is capable of copying this password by long pressing the generated value displayed to a user in a popup")
