@@ -28,6 +28,8 @@ final class PasswordGeneratorMiddleware {
                                                    for: .passwordGenerator,
                                                    window: action.windowUUID)?.password else {return}
             self.userTappedUsePassword(with: currentTab, password: password)
+        case PasswordGeneratorActionType.clearGeneratedPasswordForSite:
+            self.clearGeneratedPasswordForSite(with: currentTab, windowUUID: windowUUID)
         default:
             break
         }
@@ -80,5 +82,10 @@ final class PasswordGeneratorMiddleware {
                                 category: .webview)
             }
         }
+    }
+    
+    private func clearGeneratedPasswordForSite(with tab: Tab, windowUUID: WindowUUID) {
+        guard let origin = tab.url?.origin else {return}
+        generatedPasswordStorage.deletePasswordForOrigin(origin: origin)
     }
 }
