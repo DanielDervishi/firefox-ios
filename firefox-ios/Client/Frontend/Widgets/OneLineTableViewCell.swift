@@ -88,7 +88,6 @@ class OneLineTableViewCell: UITableViewCell,
     }
 
     private func updateReorderControl() {
-//        self.reorderControlImageView?.image = UIImage(named: StandardImageIdentifiers.Large.arrowClockwise)?.withRenderingMode(.alwaysTemplate)
         self.reorderControlImageView?.image = reorderControlImageView?.image?.withRenderingMode(.alwaysTemplate)
         self.tintColor = .black
     }

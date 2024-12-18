@@ -315,7 +315,11 @@ class BookmarksViewController: SiteTableViewController,
 
             self.deleteBookmarkNode(indexPath, bookmarkNode: bookmarkNode)
 
-            let toast = ActionToast(text: String(format: .Bookmarks.Menu.DeletedBookmark, bookmarkNode.title), bottomContainer: self.view, theme: self.currentTheme(), buttonTitle: "Undo") {
+            let toast = ActionToast(text:
+                                        String(format: .Bookmarks.Menu.DeletedBookmark, bookmarkNode.title),
+                                    bottomContainer: self.view,
+                                    theme: self.currentTheme(),
+                                    buttonTitle: "Undo") {
                 Task {
                     await self.restoreBookmarks(bookmarkNode: bookmarkNode2, parentFolderGUID: bookmarkNode.parentGUID!)
                     Task { @MainActor in
