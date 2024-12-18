@@ -23,7 +23,8 @@ struct SimpleToast: ThemeApplicable {
     func showAlertWithText(_ text: String,
                            bottomContainer: UIView,
                            theme: Theme,
-                           bottomConstraintPadding: CGFloat = 0) {
+                           bottomConstraintPadding: CGFloat = 0,
+                           dismissAfterMilliseconds: DispatchTimeInterval = Toast.UX.toastDismissAfter) {
         toastLabel.text = text
         bottomContainer.addSubview(toastLabel)
         NSLayoutConstraint.activate([
@@ -34,7 +35,7 @@ struct SimpleToast: ThemeApplicable {
                                                constant: bottomConstraintPadding)
         ])
         applyTheme(theme: theme)
-        animate(toastLabel)
+        animate(toastLabel, dismissAfterMilliseconds: dismissAfterMilliseconds)
         if UIAccessibility.isVoiceOverRunning {
             UIAccessibility.post(notification: .announcement, argument: text)
         }
@@ -58,7 +59,7 @@ struct SimpleToast: ThemeApplicable {
         )
     }
 
-    private func animate(_ toast: UIView) {
+    private func animate(_ toast: UIView, dismissAfterMilliseconds: DispatchTimeInterval) {
         UIView.animate(
             withDuration: Toast.UX.toastAnimationDuration,
             animations: {
@@ -71,7 +72,7 @@ struct SimpleToast: ThemeApplicable {
                 let thousandMilliseconds = DispatchTimeInterval.milliseconds(1000)
                 let zeroMilliseconds = DispatchTimeInterval.milliseconds(0)
                 let voiceOverDelay = UIAccessibility.isVoiceOverRunning ? thousandMilliseconds : zeroMilliseconds
-                let dispatchTime = DispatchTime.now() + Toast.UX.toastDismissAfter + voiceOverDelay
+                let dispatchTime = DispatchTime.now() + dismissAfterMilliseconds + voiceOverDelay
 
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime, execute: {
                     self.dismiss(toast)

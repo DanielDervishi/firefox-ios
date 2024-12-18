@@ -30,8 +30,10 @@ extension BookmarkFolderData: BookmarksFolderCell {
 
         return OneLineTableViewCellViewModel(title: title,
                                              leftImageView: leftImageView,
-                                             accessoryView: nil,
-                                             accessoryType: .disclosureIndicator)
+                                             accessoryView: UIImageView(image: chevronImage),
+                                             accessoryType: .none,
+                                             editingAccessoryView: UIImageView(image: chevronImage)
+                                            )
     }
 
     func didSelect(profile: Profile,
@@ -64,8 +66,9 @@ extension BookmarkItemData: BookmarksFolderCell {
 
         return OneLineTableViewCellViewModel(title: title,
                                              leftImageView: nil,
-                                             accessoryView: nil,
-                                             accessoryType: .disclosureIndicator)
+                                             accessoryView: UIImageView(image: chevronImage),
+                                             accessoryType: .none,
+                                             editingAccessoryView: UIImageView(image: chevronImage))
     }
 
     func didSelect(profile: Profile,

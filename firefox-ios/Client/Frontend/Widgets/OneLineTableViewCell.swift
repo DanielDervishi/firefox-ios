@@ -16,6 +16,8 @@ struct OneLineTableViewCellViewModel {
     var leftImageView: UIImage?
     let accessoryView: UIImageView?
     let accessoryType: UITableViewCell.AccessoryType
+    let editingAccessoryView: UIImageView?
+//    let editingAccessoryType: UITableViewCell.AccessoryType
 }
 
 class OneLineTableViewCell: UITableViewCell,
@@ -35,6 +37,15 @@ class OneLineTableViewCell: UITableViewCell,
         static let longLeadingMargin: CGFloat = 13
         static let cornerRadius: CGFloat = 5
     }
+
+    var reorderControlImageView: UIImageView? {
+            let reorderControl = self.subviews.first { view -> Bool in
+                view.classForCoder.description() == "UITableViewCellReorderControl"
+            }
+            return reorderControl?.subviews.first { view -> Bool in
+                view is UIImageView
+            } as? UIImageView
+        }
 
     var shouldLeftAlignTitle = false
     var customization: OneLineTableViewCustomization = .regular
@@ -56,8 +67,8 @@ class OneLineTableViewCell: UITableViewCell,
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
         setupLayout()
+        updateReorderControl()
     }
 
     required init?(coder: NSCoder) {
@@ -69,6 +80,17 @@ class OneLineTableViewCell: UITableViewCell,
                             left: UX.imageSize + 2 * UX.borderViewMargin,
                             bottom: 0,
                             right: 0)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateReorderControl()
+    }
+
+    private func updateReorderControl() {
+//        self.reorderControlImageView?.image = UIImage(named: StandardImageIdentifiers.Large.arrowClockwise)?.withRenderingMode(.alwaysTemplate)
+        self.reorderControlImageView?.image = reorderControlImageView?.image?.withRenderingMode(.alwaysTemplate)
+        self.tintColor = .black
     }
 
     /// Holds a reference to the left image view's leading constraint so we can update
@@ -167,6 +189,8 @@ class OneLineTableViewCell: UITableViewCell,
         titleLabel.text = viewModel.title
         accessoryView = viewModel.accessoryView
         accessoryType = viewModel.accessoryType
+        editingAccessoryView = viewModel.editingAccessoryView
+        updateReorderControl()
 
         if let image = viewModel.leftImageView {
             leftImageView.manuallySetImage(image)
@@ -182,6 +206,11 @@ class OneLineTableViewCell: UITableViewCell,
         selectedView.backgroundColor = theme.colors.layer5Hover
         backgroundColor = theme.colors.layer5
         bottomSeparatorView.backgroundColor = theme.colors.borderPrimary
+        accessoryView?.tintColor = theme.colors.iconPrimary
+        editingAccessoryView?.tintColor = theme.colors.iconPrimary
+//        reorderControlImageView?.backgroundColor = .black
+        updateReorderControl()
+        reorderControlImageView?.tintColor = .black
 
         switch customization {
         case .regular:

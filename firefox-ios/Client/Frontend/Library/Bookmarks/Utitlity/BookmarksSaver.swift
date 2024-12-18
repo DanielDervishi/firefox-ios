@@ -11,6 +11,7 @@ protocol BookmarksSaver {
     /// Returns a GUID when creating a bookmark or folder, or nil when updating them
     func save(bookmark: FxBookmarkNode, parentFolderGUID: String) async -> Result<GUID?, Error>
     func createBookmark(url: String, title: String?, position: UInt32?) async
+    func restoreBookmarkNode(bookmark: FxBookmarkNode, parentFolderGUID: String) async -> Result<GUID?, Error>
 }
 
 struct DefaultBookmarksSaver: BookmarksSaver, BookmarksRefactorFeatureFlagProvider {
@@ -66,6 +67,49 @@ struct DefaultBookmarksSaver: BookmarksSaver, BookmarksRefactorFeatureFlagProvid
                             return result.isFailure ? deferMaybe(BookmarkDetailPanelError()) : deferMaybe(nil)
                         }
                     }
+
+                default:
+                    return nil
+                }
+            }()
+
+            if let operation {
+                operation.uponQueue(.main, block: { result in
+                    if let successValue = result.successValue {
+                        continuation.resume(returning: .success(successValue))
+                    } else {
+                        continuation.resume(returning: .failure(SaveError.saveOperationFailed))
+                    }
+                })
+            } else {
+                continuation.resume(returning: .failure(SaveError.bookmarkTypeDontSupportSaving))
+            }
+        }
+    }
+
+    func restoreBookmarkNode(bookmark: FxBookmarkNode, parentFolderGUID: String) async -> Result<GUID?, Error> {
+        return await withCheckedContinuation { continuation in
+            let operation: Deferred<Maybe<GUID?>>? = {
+                switch bookmark.type {
+                case .bookmark:
+                    guard let bookmark = bookmark as? BookmarkItemData else { return deferMaybe(nil) }
+                    return profile.places.createBookmark(parentGUID: parentFolderGUID,
+                                                         url: bookmark.url,
+                                                         title: bookmark.title,
+                                                         position: bookmark.position).bind { result in
+                        return result.isFailure ? deferMaybe(BookmarkDetailPanelError())
+                                                : deferMaybe(result.successValue)
+                    }
+
+                case .folder:
+                    guard let folder = bookmark as? BookmarkFolderData else { return deferMaybe(nil) }
+
+                        return profile.places.createFolder(parentGUID: parentFolderGUID,
+                                                           title: folder.title,
+                                                           position: folder.position).bind { result in
+                            return result.isFailure ? deferMaybe(BookmarkDetailPanelError())
+                                                    : deferMaybe(result.successValue)
+                        }
 
                 default:
                     return nil
