@@ -89,7 +89,7 @@ class DownloadHelper: NSObject {
         // let contentDisposition = (response as? HTTPURLResponse)?.allHeaderFields["Content-Disposition"] as? String
         // let isAttachment = contentDisposition?.starts(with: "attachment") ?? (mimeType == MIMEType.OctetStream)
 
-        guard isAttachment || !canShowInWebView || forceDownload else { return nil }
+        guard isAttachment || !canShowInWebView || forceDownload || request.url?.scheme == "blob" || response.mimeType == MIMEType.PDF else { return nil }
 
         self.cookieStore = cookieStore
         self.request = request

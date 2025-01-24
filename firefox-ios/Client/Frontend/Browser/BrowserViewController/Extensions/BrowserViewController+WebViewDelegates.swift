@@ -737,6 +737,9 @@ extension BrowserViewController: WKNavigationDelegate {
             present(alert, animated: true)
         }
 
+        if request?.url?.scheme == "blob" {
+            decisionHandler(.download)
+        }
         // Check if this response should be downloaded.
         if let downloadHelper = DownloadHelper(request: request,
                                                response: response,

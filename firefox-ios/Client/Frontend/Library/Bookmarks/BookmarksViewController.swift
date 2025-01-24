@@ -7,8 +7,8 @@ import UIKit
 import Storage
 import Shared
 import SiteImageView
-
 import MozillaAppServices
+import ActivityKit
 
 class BookmarksViewController: SiteTableViewController,
                                LibraryPanel,
@@ -443,29 +443,45 @@ class BookmarksViewController: SiteTableViewController,
     // MARK: - UITableViewDataSource | UITableViewDelegate
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: false)
+//        tableView.deselectRow(at: indexPath, animated: false)
+//
+//        guard let node = viewModel.bookmarkNodes[safe: indexPath.row],
+//              let bookmarkCell = node as? BookmarksFolderCell
+//        else { return }
+//
+//        guard !tableView.isEditing else {
+//            if let bookmarkFolder = self.viewModel.bookmarkFolder,
+//                !(node is BookmarkSeparatorData),
+//                isCurrentFolderEditable(at: indexPath) {
+//                // Only show detail controller for editable nodes
+//                bookmarkCoordinatorDelegate?.showBookmarkDetail(for: node, folder: bookmarkFolder, completion: nil)
+//            }
+//            return
+//        }
+//
+//        updatePanelState(newState: .bookmarks(state: .inFolder))
+//        if let itemData = bookmarkCell as? BookmarkItemData,
+//           let url = URL(string: itemData.url, invalidCharacters: false) {
+//            libraryPanelDelegate?.libraryPanel(didSelectURL: url, visitType: .bookmark)
+//        } else {
+//            guard let folder = bookmarkCell as? FxBookmarkNode else { return }
+//            bookmarkCoordinatorDelegate?.start(from: folder)
+//        }
+        if #available(iOS 18, *) {
+            let orderAttributes = OrderAttributes(orderNumber: 1)
+            let initialState = OrderAttributes.ContentState(status: .inQueue)
+            let content = ActivityContent(state: initialState, staleDate: nil, relevanceScore: 1.0)
 
-        guard let node = viewModel.bookmarkNodes[safe: indexPath.row],
-              let bookmarkCell = node as? BookmarksFolderCell
-        else { return }
-
-        guard !tableView.isEditing else {
-            if let bookmarkFolder = self.viewModel.bookmarkFolder,
-                !(node is BookmarkSeparatorData),
-                isCurrentFolderEditable(at: indexPath) {
-                // Only show detail controller for editable nodes
-                bookmarkCoordinatorDelegate?.showBookmarkDetail(for: node, folder: bookmarkFolder, completion: nil)
+            do {
+                _ = try Activity.request(
+                        attributes: orderAttributes,
+                        content: content,
+                        pushType: nil
+                    )
+                print("tried the activity")
+            } catch {
+                print("activity failed")
             }
-            return
-        }
-
-        updatePanelState(newState: .bookmarks(state: .inFolder))
-        if let itemData = bookmarkCell as? BookmarkItemData,
-           let url = URL(string: itemData.url, invalidCharacters: false) {
-            libraryPanelDelegate?.libraryPanel(didSelectURL: url, visitType: .bookmark)
-        } else {
-            guard let folder = bookmarkCell as? FxBookmarkNode else { return }
-            bookmarkCoordinatorDelegate?.start(from: folder)
         }
     }
 

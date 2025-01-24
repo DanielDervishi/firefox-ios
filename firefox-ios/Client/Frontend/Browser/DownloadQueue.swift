@@ -110,6 +110,7 @@ class HTTPDownload: Download {
 
         super.init(originWindow: originWindow)
 
+//        self.filename = "Something.txt"
         if let filename = preflightResponse.suggestedFilename {
             self.filename = HTTPDownload.stripUnicode(fromFilename: filename)
         }
@@ -132,7 +133,7 @@ class HTTPDownload: Download {
         }
 
         self.session = URLSession(configuration: .ephemeralMPTCP, delegate: self, delegateQueue: .main)
-        self.task = session?.downloadTask(with: self.request)
+        self.task = session?.downloadTask(with: request)
     }
 
     override func cancel() {
